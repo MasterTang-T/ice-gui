@@ -1,0 +1,174 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
+var Ice = require("ice").Ice;
+// var Demo = require("./Hello").Demo;
+var Demo = require("./IceBusiness").business;
+var config = require("../../../configFile");
+
+
+// Ice.MessageSizeMax = 204800;
+//
+// var id = new Ice.InitializationData();
+
+// Ice.createProperties("Ice.MessageSizeMax",204800);
+// var Property =Ice.createProperties();
+// Property.setProperty("MessageSizeMax",0);
+// id.clone();
+// id.properties = Ice.createProperties();
+// id.properties.setProperty("Ice.MessageSizeMax",204800);
+var proxy;
+
+function createProx() {
+    console.log("重新创建代理");
+    var communicator;
+    // communicator = Ice.initialize(process.argv,id);
+    communicator = Ice.initialize(['--Ice.MessageSizeMax=0']);
+    // communicator = Ice.initialize(id);
+    var proxyStr = "business:default -h " + config.iceConfig.iceIp + " -p " + config.iceConfig.port;
+    proxy = communicator.stringToProxy(proxyStr);
+    if(connectObject){
+        connectObject = null;
+    }
+}
+
+createProx();
+// var proxy = communicator.stringToProxy("facenet:default -h 192.168.2.220 -p 10000");
+//代理生成对象
+var connectObject = "";
+
+
+function common(method, params, params2) {
+    params = changeJson(params);
+
+    if (!connectObject) {
+        return new Promise(function (resolve, reject) {
+            Demo.IBusinessPrx.checkedCast(proxy).then(function (twoway) {
+                connectObject = twoway;
+                if (params2 || params2 == 0) {
+                    twoway[method](params, params2).then(function (data) {
+                        // console.log(data);
+                        resolve(JSON.parse(data));
+                    }, function (err) {
+                        console.log(err);
+                        reject(err);
+                    })
+                } else {
+                    twoway[method](params || "").then(function (data) {
+                        // console.log(data);
+                        resolve(JSON.parse(data));
+                    }, function (err) {
+                        console.log(err);
+                        reject(err);
+                    })
+                }
+
+            },function (err) {
+                    connectObject = null;
+                    reject(err);
+                    console.log(err);
+            })
+        })
+    } else {
+        return new Promise(function (resolve, reject) {
+            if (params2 || params2 == 0) {
+                connectObject[method](params, params2).then(function (data) {
+                    // console.log(data);
+                    resolve(JSON.parse(data));
+                }, function (err) {
+                    console.log(err);
+                    reject(err);
+                })
+            } else {
+                connectObject[method](params || "").then(function (data) {
+                    // console.log(data);
+                    resolve(JSON.parse(data));
+                }, function (err) {
+                    console.log(err);
+                    reject(err);
+                })
+            }
+        });
+    }
+    // return new Promise(function (resolve,reject) {
+    //     Demo.FaceShowPrx.checkedCast(proxy).then(function (twoway) {
+    //         twoway[method](params).then(function (data) {
+    //             console.log(data);
+    //             resolve(data);
+    //         },function (err) {
+    //             console.log(err);
+    //             reject(err);
+    //         })
+    //     })
+    // })
+}
+
+//
+// function common(method,params) {
+//     if(!connectObject){
+//         return new Promise(function (resolve,reject) {
+//             Demo.IFaceNetPrx.checkedCast(proxy).then(function (twoway) {
+//                 // console.log(params);
+//                 connectObject = twoway;
+//                 twoway[method](params).then(function (data) {
+//                     console.log(data);
+//                     //json 转换
+//                     if(typeof data == "string") {
+//                         var datas = JSON.parse(data);
+//                         resolve(datas);
+//                     }else{
+//                         reject("JSON err");
+//                     }
+//
+//
+//                 },function (err) {
+//                     console.log(err);
+//                     reject(err);
+//                 })
+//             })
+//         })
+//     }else{
+//         return new Promise(function (resolve,reject) {
+//             connectObject[method](params).then(function (data) {
+//                 // console.log(data);
+//                 //json 转换
+//                 if(typeof data == "string"){
+//                     var datas = JSON.parse(data);
+//                     resolve(datas);
+//                 }else{
+//                     reject("JSON Err");
+//                 }
+//             },function (err) {
+//                 console.log(err);
+//                 reject(err);
+//             })
+//         })
+//     }
+// }
+
+
+//公共参数转json
+function changeJson(params) {
+    if (typeof params == "object") {
+        return JSON.stringify(params);
+    } else {
+        return params || ""
+    }
+}
+
+var methods = {{{methodsArr}}}
+var test = {
+
+    //断线重连
+    createProx: createProx,
+
+}
+methods.forEach(function (method) {
+    test[method] = function (param) {
+        return common(method,param);
+    }
+})
+module.exports = test;
