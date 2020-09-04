@@ -10,8 +10,8 @@ const {
 function createWindow() {
     // 创建窗口
     const win = new BrowserWindow({
-        width: 500,
-        height: 500,
+        width: 700,
+        height: 700,
         webPreferences: {
             nodeIntegration: true
         }
@@ -19,7 +19,7 @@ function createWindow() {
 
     win.loadFile('index.html')
 
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
 }
 app.whenReady().then(createWindow)
 app.on('window-all-closed', () => {
@@ -28,9 +28,17 @@ app.on('window-all-closed', () => {
     }
 })
 ipcMain.on('uploadFile', (event, arg) => {
-    parseFile(arg)
+    const {
+        clientJSPath,
+        iceBusinessJSPath,
+        iceBusinessJSONPath
+    }= parseFile(arg)
     event.sender.send('uploadFileSuccess', {
-        msg: 'ok',
         code: 0,
+        info: {
+            clientJSPath,
+            iceBusinessJSPath,
+            iceBusinessJSONPath
+        }
     });
 });

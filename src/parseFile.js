@@ -3,7 +3,9 @@ const path = require('path')
 const os = require('os')
 const handlebars = require('handlebars')
 const Desktop = path.join(os.homedir(), "Desktop")
-
+let clientJSPath = '';
+let iceBusinessJSPath = '';
+let iceBusinessJSONPath = '';
 function parseFile(arg) {
     const {
         path,
@@ -12,17 +14,21 @@ function parseFile(arg) {
     if (path.includes('.ice')) {
         let clientPath = Desktop + `/${filename}`;
         clientPath = clientPath.replace('.ice', '.json')
-
+        iceBusinessJSONPath = clientPath
         if (fs.existsSync(path)) {
             const fileContent = fs.readFileSync(path, 'utf-8').toString()
             const fileDealData = fileDealFunc(fileContent)
             fs.writeFileSync(clientPath, fileDealData)
             renderClientJS(clientPath,filename)
             renderIceJS(clientPath)
-
+           
         }
     }
-
+    return {
+        clientJSPath,
+        iceBusinessJSPath,
+        iceBusinessJSONPath
+    }
 }
 // 渲染 ice对应的js模板
 const renderIceJS = (iceJsonPath) => {
@@ -44,6 +50,7 @@ const renderIceJS = (iceJsonPath) => {
             methodsObj:JSON.stringify(methodsObj,null,'\t')
         })
         fs.writeFileSync(ICE_JS_PATH, result);
+        iceBusinessJSPath = ICE_JS_PATH
     }
 }
 // 渲染client.js 模板
@@ -78,12 +85,11 @@ const compile = (meta, filePath,filename, templatePath) => {
     filename = filename.split('.')[0]
     let FILEPATH = filePath.replace(filename, templateName)
     FILEPATH = FILEPATH.replace('.json', '.js')
-    console.log(FILEPATH,"FILEPATH")
-    console.log(templatePath,"templatePath")
     if (fs.existsSync(templatePath)) {
         const content = fs.readFileSync(templatePath).toString()
         const result = handlebars.compile(content)(meta)
         fs.writeFileSync(FILEPATH, result);
+        clientJSPath = FILEPATH;
     }
 }
 // 分割路径
