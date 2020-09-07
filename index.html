@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ICE-GUI</title>
-  <script>window.$ = window.jQuery = require('jquery');</script>
-  <script>require('handlebars');</script>
-  <link rel="stylesheet" href="./src/style.css">
-</head>
-<body>
-  <button class="primary-btn" id="upload-file-btn">上传文件</button>
-  <div class='detail_placeholder'>请上传ice文件，所需文件会自动解析到桌面</div>
-  <div class='detail_placeholder'>点击解析后生成的链接，可直接定向到对应目录位置</div>
-  <h2>
-    已上传ICE文件: <span class="upload-filename"></span>
-  </h2>
-  <button class="primary-btn" id="parse-file-btn">开始解析</button>
-  <ul class="result-ul">
-    
-  </ul>
-</body>
-<script type="text/javascript">
-  require('./src/upload.js')
-</script>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICE-GUI</title>
+    <script>
+      window.$ = window.jQuery = require('jquery');
+    </script>
+    <script>
+      require('handlebars');
+    </script>
+    <link rel="stylesheet" href="./src/style.css">
+  </head>
+
+  <body>
+    <button class="primary-btn" id="upload-file-btn">上传文件</button>
+    <div class='detail_placeholder'>请上传ice文件，所需文件会自动解析到桌面</div>
+    <div class='detail_placeholder'>点击解析后生成的链接，可直接定向到对应目录位置</div>
+    <h2>
+      已上传ICE文件: <span class="upload-filename"></span>
+    </h2>
+    <button class="primary-btn" id="parse-file-btn">开始解析</button>
+    <ul class="result-ul">
+
+    </ul>
+  </body>
+  <script type="text/javascript">
+    require('./src/upload.js')
+  </script>
 
 </html>
